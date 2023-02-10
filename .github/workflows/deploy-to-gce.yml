@@ -62,8 +62,8 @@ jobs:
     - name: Cache SSH keys
       uses: actions/cache@v3
       with:
-        path: |
-          ~/.ssh
+        path: ~/.ssh
+        key: ${{ runner.os }}-ssh
 
     - name: Deploy
       run: |-
