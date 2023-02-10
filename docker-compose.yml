@@ -16,4 +16,4 @@ services:
       - .env
     image: hivecv/lumber-hub-api:latest
     ports:
-      - 5002:80
+      - 80:80

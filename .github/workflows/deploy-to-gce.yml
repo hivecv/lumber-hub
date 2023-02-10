@@ -59,6 +59,12 @@ jobs:
       run: |-
         docker compose push
 
+    - name: Cache SSH keys
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.ssh
+
     - name: Deploy
       run: |-
         gcloud compute ssh \
