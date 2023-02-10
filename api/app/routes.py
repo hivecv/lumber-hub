@@ -2,11 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 import database
-import models
 import crud
 import schemas
-
-models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
 # Dependency

@@ -4,4 +4,10 @@ COPY ./requirements.txt /app/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
-COPY ./app /app
+WORKDIR /code
+
+COPY app /code/app/
+ENV PYTHONPATH /code/app
+
+COPY ./run.sh /code/run.sh
+CMD ["bash", "/code/run.sh"]
