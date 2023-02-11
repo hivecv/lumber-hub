@@ -3,6 +3,20 @@ from typing import Union
 from pydantic import BaseModel
 
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: str
+
+
+class TokenForm(BaseModel):
+    email: str
+    password: str
+
+
 class DeviceBase(BaseModel):
     config_schema: str
 
@@ -40,3 +54,7 @@ class User(UserBase):
 class ValidationMessage(BaseModel):
     field: str
     error: str
+
+
+class AuthorizationMessage(BaseModel):
+    reason: str
