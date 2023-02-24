@@ -1,0 +1,42 @@
+.site-layout-content {
+  min-height: 280px;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+#root .error {
+  color: red;
+}
+
+#root .ant-layout-header {
+  color: #e1b29f;
+}
+
+.logo {
+  float: left;
+  width: 70px;
+  height: calc(100% - 10px);
+  margin: 5px;
+  background-image: url("../public/android-chrome-512x512.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.ant-row-rtl .logo {
+  float: right;
+  margin: 16px 0 16px 24px;
+}
+
+.content {
+  padding: 50px;
+}
+
+.gauge-wrapper-row {
+  display: flex;
+}
+
+.gauge-wrapper {
+  width: 25%;
+}

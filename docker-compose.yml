@@ -15,5 +15,13 @@ services:
     env_file:
       - .env
     image: hivecv/lumber-hub-api:latest
+    depends_on:
+      - db
+
+  web:
+    build: web
+    image: hivecv/lumber-hub-web:latest
     ports:
       - 80:80
+    depends_on:
+      - api
