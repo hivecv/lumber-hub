@@ -10,8 +10,14 @@
   color: red;
 }
 
-#root .ant-layout-header {
-  color: #e1b29f;
+#root .ant-layout {
+  background: #fff0ea;
+}
+
+#root .ant-layout-header, #root .ant-layout-footer {
+  background: #86695d;
+  color: #FFF;
+  font-weight: bold;
 }
 
 .logo {
@@ -39,4 +45,8 @@
 
 .gauge-wrapper {
   width: 25%;
+}
+
+.ant-card-body {
+  text-align: center;
 }
