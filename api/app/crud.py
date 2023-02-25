@@ -43,6 +43,21 @@ def get_user_devices(db: Session, user_id: int):
     return db.query(models.Device).filter(models.Device.owner_id == user_id).all()
 
 
+def get_user_device(db: Session, user_id: int, device_id: int):
+    return db.query(models.Device).filter(models.Device.owner_id == user_id).filter(models.Device.id == device_id).first()
+
+
+def update_user_device(db: Session, user_id: int, device_id: int, device: schemas.Device):
+    db_device = get_user_device(db, user_id, device_id)
+    device_data = device.dict(exclude_unset=True)
+    for key, value in device_data.items():
+        setattr(db_device, key, value)
+    db.add(db_device)
+    db.commit()
+    db.refresh(db_device)
+    return db_device
+
+
 def create_user_device(db: Session, device: schemas.DeviceCreate, user_id: int):
     db_item = models.Device(**device.dict(), owner_id=user_id)
     db.add(db_item)

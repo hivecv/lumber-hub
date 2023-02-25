@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, ExpiredSignatureError
 
 import database
@@ -24,7 +24,7 @@ def get_db():
 async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
     credentials_exception = JSONResponse(
         status_code=401,
-        content=jsonable_encoder(schemas.AuthorizationMessage(reason="Could not validate credentials"))
+        content=jsonable_encoder(schemas.ErrorMessage(reason="Could not validate credentials"))
     )
     try:
         email = decode_token(token)
@@ -45,11 +45,11 @@ async def get_current_active_user(current_user: schemas.User = Depends(get_curre
     return current_user
 
 
-@app.post("/token/", response_model=schemas.Token, responses={401: {"model": schemas.AuthorizationMessage}})
+@app.post("/token/", response_model=schemas.Token, responses={401: {"model": schemas.ErrorMessage}})
 async def login_for_access_token(data: schemas.TokenForm, db=Depends(get_db)):
     user = crud.authenticate_user(db, data.email, data.password)
     if not user:
-        return JSONResponse(status_code=401, content=jsonable_encoder(schemas.AuthorizationMessage(reason="Incorrect username or password")))
+        return JSONResponse(status_code=401, content=jsonable_encoder(schemas.ErrorMessage(reason="Incorrect username or password")))
 
     access_token = create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
@@ -96,3 +96,14 @@ async def read_users_me(current_user: schemas.User = Depends(get_current_active_
 @app.get("/users/me/devices/")
 async def read_own_items(current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
     return crud.get_user_devices(db, user_id=current_user.id)
+
+
+@app.put("/users/me/devices/{device_id}/", response_model=schemas.Device, responses={400: {"model": schemas.ErrorMessage}})
+async def update_user_device(device_id: int, device: schemas.Device, current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
+    if device_id not in list(map(lambda item: item.id, current_user.devices)):
+        return JSONResponse(
+            status_code=404,
+            content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified device"))
+        )
+    device = crud.update_user_device(db, user_id=current_user.id, device_id=device_id, device=device)
+    return device

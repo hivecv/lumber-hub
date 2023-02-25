@@ -19,6 +19,7 @@ class TokenForm(BaseModel):
 
 class DeviceBase(BaseModel):
     config_schema: str
+    device_uuid: str
 
 
 class DeviceCreate(DeviceBase):
@@ -56,5 +57,5 @@ class ValidationMessage(BaseModel):
     error: str
 
 
-class AuthorizationMessage(BaseModel):
+class ErrorMessage(BaseModel):
     reason: str

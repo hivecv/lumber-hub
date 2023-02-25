@@ -1,16 +1,24 @@
 import {Button, Col, Drawer, Form, Input, Row, Space} from 'antd';
 import _ from 'lodash';
+import {useDispatch} from "react-redux";
+import {updateDevice} from "../../redux";
 
 const ConfigureDrawer = ({device, onClose}) => {
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
   const schema = device ? device.schema : {}
   const fields = Object.keys(schema)
   const chunks = _.chunk(fields, 2)
+  const config = device ? device.config : {}
 
   const submit = () => {
     form.validateFields()
       .then(values => {
-        console.log("SUBMIT", values)
+        device.config = values
+        dispatch(updateDevice({
+          ...device.getJsonData(),
+          callback: onClose
+        }))
       })
       .catch(() => {})
   }
@@ -50,7 +58,7 @@ const ConfigureDrawer = ({device, onClose}) => {
                           },
                         ]}
                       >
-                        <Input type={schema[field]} />
+                        <Input type={schema[field]} defaultValue={config[field]}/>
                       </Form.Item>
                     </Col>
                   ))

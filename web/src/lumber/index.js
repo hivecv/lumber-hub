@@ -39,6 +39,14 @@ class Device {
   hasValidConfig() {
     return this.validator.compile(this.prepareSchema(this.schema))(this.config)
   }
+
+  getJsonData() {
+    return {
+      ...this.rawConfig,
+      config_schema: JSON.stringify(this.schema),
+      config: JSON.stringify(this.config),
+    }
+  }
 }
 
 export {Device};
