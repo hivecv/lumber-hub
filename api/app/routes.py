@@ -73,11 +73,6 @@ def read_users(skip: int = 0, limit: int = 100, db=Depends(get_db)):
     return users
 
 
-@app.post("/users/{user_id}/devices/", response_model=schemas.Device)
-def create_device_for_user(user_id: int, device: schemas.DeviceCreate, db=Depends(get_db)):
-    return crud.create_user_device(db=db, device=device, user_id=user_id)
-
-
 @app.get("/devices/", response_model=list[schemas.Device], responses={400: {"model": schemas.ValidationMessage}})
 def read_devices(skip: int = 0, limit: int = 100, db=Depends(get_db)):
     if limit < 1:
@@ -94,16 +89,36 @@ async def read_users_me(current_user: schemas.User = Depends(get_current_active_
 
 
 @app.get("/users/me/devices/")
-async def read_own_items(current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
+async def read_own_devices(current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
     return crud.get_user_devices(db, user_id=current_user.id)
 
 
-@app.put("/users/me/devices/{device_id}/", response_model=schemas.Device, responses={400: {"model": schemas.ErrorMessage}})
+@app.post("/users/me/devices/", response_model=schemas.Device)
+def create_device_for_user(device: schemas.DeviceCreate, current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
+    db_device = crud.get_device_by_uuid(db, uuid=device.device_uuid)
+    if db_device:
+        return crud.update_user_device(db, user_id=current_user.id, device=device)
+    else:
+        return crud.create_user_device(db=db, device=device, user_id=current_user.id)
+
+
+@app.put("/users/me/devices/{device_id}/", response_model=schemas.Device, responses={404: {"model": schemas.ErrorMessage}})
 async def update_user_device(device_id: int, device: schemas.Device, current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
     if device_id not in list(map(lambda item: item.id, current_user.devices)):
         return JSONResponse(
             status_code=404,
             content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified device"))
         )
-    device = crud.update_user_device(db, user_id=current_user.id, device_id=device_id, device=device)
+    device = crud.update_user_device(db, user_id=current_user.id, device=device)
     return device
+
+
+@app.delete("/users/me/devices/{device_id}/", responses={404: {"model": schemas.ErrorMessage}})
+async def update_user_device(device_id: int, current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
+    if device_id not in list(map(lambda item: item.id, current_user.devices)):
+        return JSONResponse(
+            status_code=404,
+            content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified device"))
+        )
+    crud.delete_user_device(db, user_id=current_user.id, device_id=device_id)
+    return JSONResponse(status_code=204, content=None)

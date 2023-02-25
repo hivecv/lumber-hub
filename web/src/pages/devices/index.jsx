@@ -1,10 +1,9 @@
 import {Button, Space, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {devicesSelector, fetchDevices} from "../../redux";
+import {deleteDevice, devicesSelector, fetchDevices} from "../../redux";
 import {Device} from "../../lumber";
 import ConfigureDrawer from "./ConfigureDrawer";
-import {PlusOutlined} from "@ant-design/icons";
 
 function Index() {
   const [currentDevice, setCurrentDevice] = useState(null);
@@ -42,7 +41,9 @@ function Index() {
         <Button type="link" onClick={() => setCurrentDevice(item)}>
           Configure
         </Button>
-        <a>Delete</a>
+        <Button type="link" onClick={() => dispatch(deleteDevice({id: item.deviceId()}))}>
+          Delete
+        </Button>
       </Space>
     },
   ]
