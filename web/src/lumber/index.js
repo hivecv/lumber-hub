@@ -7,12 +7,23 @@ class Device {
   }
   parseRaw(raw) {
     this.rawConfig = raw
-    this.schema = this.prepareSchema(JSON.parse(this.rawConfig.config_schema || "{}"))
+    this.schema = JSON.parse(this.rawConfig.config_schema || "{}")
     this.config = JSON.parse(this.rawConfig.config || "{}")
+    this.key = this.deviceId()
   }
 
   deviceId() {
     return this.rawConfig.id
+  }
+
+  lastActive() {
+    return new Date(this.rawConfig.last_active)
+  }
+
+  isActive() {
+    const current = new Date();
+    const td = (current.getTime() - this.lastActive().getTime()) / 1000
+    return td < 10
   }
 
   prepareSchema(rawSchema) {
@@ -36,8 +47,15 @@ class Device {
     };
   }
   hasValidConfig() {
-    console.log("TEST", this.schema, this.config)
-    return this.validator.compile(this.schema)(this.config)
+    return this.validator.compile(this.prepareSchema(this.schema))(this.config)
+  }
+
+  getJsonData() {
+    return {
+      ...this.rawConfig,
+      config_schema: JSON.stringify(this.schema),
+      config: JSON.stringify(this.config),
+    }
   }
 }
 

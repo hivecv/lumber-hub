@@ -1,10 +1,13 @@
 import {Button, Space, Table, Tag} from "antd";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {devicesSelector, fetchDevices} from "../../redux";
+import * as timeago from 'timeago.js';
+import {deleteDevice, devicesSelector, fetchDevices} from "../../redux";
 import {Device} from "../../lumber";
+import ConfigureDrawer from "./ConfigureDrawer";
 
 function Index() {
+  const [currentDevice, setCurrentDevice] = useState(null);
   const dispatch = useDispatch();
   const rawDevices = useSelector(devicesSelector)
   const devices = rawDevices.map(raw => new Device(raw));
@@ -18,7 +21,7 @@ function Index() {
       title: "Last active",
       dataIndex: "config_schema",
       key: "last_active",
-      render: () => <span>2014-12-24 23:12:00</span>
+      render: (_, item) => <span>{timeago.format(item.lastActive())}</span>
     }, {
       title: "Status",
       dataIndex: "config_schema",
@@ -27,17 +30,25 @@ function Index() {
         {
           item.hasValidConfig()
             ? <Tag color="green">Configured</Tag>
-            : <Tag color="orange">Pending</Tag>
+            : <Tag color="orange">Needs Config</Tag>
         }
-
+        {
+          item.isActive()
+            ? <Tag color="green">Active</Tag>
+            : <Tag color="red">Inactive</Tag>
+        }
       </>
     }, {
       title: "Action",
       dataIndex: "config_schema",
       key: "action",
-      render: () => <Space size="middle">
-        <a>Configure</a>
-        <a>Delete</a>
+      render: (_, item) => <Space size="middle">
+        <Button type="link" onClick={() => setCurrentDevice(item)}>
+          Configure
+        </Button>
+        <Button type="link" onClick={() => dispatch(deleteDevice({id: item.deviceId()}))}>
+          Delete
+        </Button>
       </Space>
     },
   ]
@@ -45,9 +56,12 @@ function Index() {
   useEffect(() => {
     dispatch(fetchDevices())
   }, [])
-  console.log(devices)
+
   return (
-    <Table columns={columns} dataSource={devices} />
+    <>
+      <ConfigureDrawer device={currentDevice} onClose={() => setCurrentDevice(null)}/>
+      <Table columns={columns} dataSource={devices} />
+    </>
   )
 }
 

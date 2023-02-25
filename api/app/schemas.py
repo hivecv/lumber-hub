@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Union
 
 from pydantic import BaseModel
@@ -19,6 +20,7 @@ class TokenForm(BaseModel):
 
 class DeviceBase(BaseModel):
     config_schema: str
+    device_uuid: str
 
 
 class DeviceCreate(DeviceBase):
@@ -28,6 +30,7 @@ class DeviceCreate(DeviceBase):
 class Device(DeviceBase):
     id: int
     owner_id: int
+    last_active: datetime
     config: Union[str, None] = None
 
     class Config:
@@ -56,5 +59,5 @@ class ValidationMessage(BaseModel):
     error: str
 
 
-class AuthorizationMessage(BaseModel):
+class ErrorMessage(BaseModel):
     reason: str

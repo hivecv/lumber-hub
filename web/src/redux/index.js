@@ -1,5 +1,5 @@
 import {configureStore, createSlice, createAsyncThunk} from '@reduxjs/toolkit'
-import request, {GET, POST} from "./request";
+import request, {DELETE, GET, POST, PUT} from "./request";
 import {get} from './localstorage';
 
 
@@ -26,6 +26,28 @@ export const fetchDevices = createAsyncThunk(
   async (act, thunk) => {
     const response = await request(GET, `/api/users/me/devices/`, {}, getAuthConfig(thunk));
     thunk.dispatch(updateDevices(response.data))
+  }
+)
+
+export const updateDevice = createAsyncThunk(
+  'devices/update',
+  async (act, thunk) => {
+    const response = await request(PUT, `/api/users/me/devices/${act['id']}/`, act, getAuthConfig(thunk));
+    thunk.dispatch(fetchDevices());
+    if(act.callback) {
+      act.callback(response.data)
+    }
+  }
+)
+
+export const deleteDevice = createAsyncThunk(
+  'devices/delete',
+  async (act, thunk) => {
+    const response = await request(DELETE, `/api/users/me/devices/${act['id']}/`, {}, getAuthConfig(thunk));
+    thunk.dispatch(fetchDevices());
+    if(act.callback) {
+      act.callback(response.data)
+    }
   }
 )
 export const login = createAsyncThunk(
