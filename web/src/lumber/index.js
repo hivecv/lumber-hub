@@ -3,7 +3,8 @@ import Ajv from "ajv";
 class Device {
   constructor(raw) {
     this.validator = new Ajv();
-    this.parseRaw(raw)
+    this.parseRaw(raw);
+    this.currentDate = new Date();
   }
   parseRaw(raw) {
     this.rawConfig = raw
@@ -21,8 +22,7 @@ class Device {
   }
 
   isActive() {
-    const current = new Date();
-    const td = (current.getTime() - this.lastActive().getTime()) / 1000
+    const td = (this.currentDate.getTime() - this.lastActive().getTime()) / 1000
     return td < 10
   }
 
