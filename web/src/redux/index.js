@@ -1,5 +1,7 @@
 import {configureStore, createSlice, createAsyncThunk} from '@reduxjs/toolkit'
-import request, {GET} from "./request";
+import request, {GET, POST} from "./request";
+import {get} from './localstorage';
+
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -9,7 +11,17 @@ export const fetchData = createAsyncThunk(
   'data/fetch',
   async (act, thunk) => {
     const response = await request(GET, `/some/data`);
-    thunk.dispatch(update(response.data))
+    thunk.dispatch(updateAuth(response.data))
+  }
+)
+export const login = createAsyncThunk(
+  'auth/login',
+  async (act, thunk) => {
+    const response = await request(POST, `/api/token/`, act);
+    thunk.dispatch(updateAuth(response.data))
+    if(act.callback) {
+      act.callback(response.data)
+    }
   }
 )
 
@@ -17,10 +29,16 @@ export const appSlice = createSlice({
   name: 'app',
   initialState: {
     inProgress: false,
+    profile: {},
+    auth: {
+      access_token: get("auth_token") || null,
+      token_type: null,
+      error: null,
+    },
   },
   reducers: {
-    update: (state, action) => {
-      Object.assign(state, action.payload)
+    updateAuth: (state, action) => {
+      state.auth = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -30,7 +48,9 @@ export const appSlice = createSlice({
   },
 })
 
-export const {update} = appSlice.actions;
+export const authTokenSelector = state => state.app.auth.access_token
+
+export const {updateAuth} = appSlice.actions;
 
 
 export default configureStore({
