@@ -1,11 +1,14 @@
 import React from "react";
-import { useRouteError } from "react-router-dom";
-import {DATA_PAGE, DEVICES_PAGE, HOME_PAGE, INDEX_PAGE, LOGIN_PAGE} from "./paths";
+import {Navigate, useRouteError} from "react-router-dom";
+import {DATA_PAGE, DEVICES_PAGE, HOME_PAGE, INDEX_PAGE, LOGIN_PAGE, REGISTER_PAGE} from "./paths";
 import Devices from "../pages/devices";
 import Login from "../pages/login";
 import Data from "../pages/data";
 import Home from "../pages/home";
 import Nav from "../nav";
+import Register from "../pages/register";
+import {useSelector} from "react-redux";
+import {authTokenSelector} from "../redux";
 
 function ErrorPage() {
   const error = useRouteError();
@@ -21,6 +24,14 @@ function ErrorPage() {
     </div>
   );
 }
+const Protected = ({ children }) => {
+  const token = useSelector(authTokenSelector);
+  if (!token) {
+    return <Navigate to={LOGIN_PAGE} replace/>;
+  }
+
+  return children;
+};
 
 export default [
   {
@@ -30,22 +41,27 @@ export default [
     children: [
       {
         path: HOME_PAGE,
-        element: <Home />,
+        element: <Protected><Home /></Protected>,
         errorElement: <ErrorPage />,
       },
       {
         path: DEVICES_PAGE,
-        element: <Devices />,
+        element: <Protected><Devices /></Protected>,
         errorElement: <ErrorPage />,
       },
       {
         path: DATA_PAGE,
-        element: <Data />,
+        element: <Protected><Data /></Protected>,
         errorElement: <ErrorPage />,
       },
       {
         path: LOGIN_PAGE,
         element: <Login />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: REGISTER_PAGE,
+        element: <Register />,
         errorElement: <ErrorPage />,
       },
     ]

@@ -24,6 +24,15 @@ export const login = createAsyncThunk(
     }
   }
 )
+export const register = createAsyncThunk(
+  'auth/register',
+  async (act, thunk) => {
+    const response = await request(POST, `/api/users/`, act);
+    if(act.callback) {
+      act.callback(response.data)
+    }
+  }
+)
 
 export const appSlice = createSlice({
   name: 'app',

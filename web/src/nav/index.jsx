@@ -2,7 +2,7 @@ import React from 'react';
 import {Layout, Menu} from "antd";
 import {Link, Outlet, useLocation} from "react-router-dom"
 import './nav.css'
-import {DATA_PAGE, DEVICES_PAGE, HOME_PAGE, LOGIN_PAGE, REGISTER_PAGE} from "../config/paths";
+import {DATA_PAGE, DEVICES_PAGE, HOME_PAGE, INDEX_PAGE, LOGIN_PAGE, REGISTER_PAGE} from "../config/paths";
 import {useDispatch, useSelector} from "react-redux";
 import {authTokenSelector, updateAuth} from "../redux";
 import {remove} from "../redux/localstorage";
@@ -16,6 +16,7 @@ function Index() {
     dispatch(updateAuth({token: null}));
     remove("auth_token")
   }
+
   const menuItems = token
     ? [{
         key: HOME_PAGE,
@@ -41,7 +42,7 @@ function Index() {
   return (
     <Layout className="layout">
       <Header>
-        <div className="logo"/>
+        <Link to={INDEX_PAGE}><div className="logo"/></Link>
         <div className="title">LumberHub Dashboard</div>
         <Menu theme="dark" mode="horizontal" selectedKeys={[location.pathname]} items={menuItems} />
       </Header>
