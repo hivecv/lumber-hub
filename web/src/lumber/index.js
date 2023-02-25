@@ -7,8 +7,9 @@ class Device {
   }
   parseRaw(raw) {
     this.rawConfig = raw
-    this.schema = this.prepareSchema(JSON.parse(this.rawConfig.config_schema || "{}"))
+    this.schema = JSON.parse(this.rawConfig.config_schema || "{}")
     this.config = JSON.parse(this.rawConfig.config || "{}")
+    this.key = this.deviceId()
   }
 
   deviceId() {
@@ -36,8 +37,7 @@ class Device {
     };
   }
   hasValidConfig() {
-    console.log("TEST", this.schema, this.config)
-    return this.validator.compile(this.schema)(this.config)
+    return this.validator.compile(this.prepareSchema(this.schema))(this.config)
   }
 }
 
