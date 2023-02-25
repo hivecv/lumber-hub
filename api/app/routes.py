@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from jose import JWTError
+from jose import JWTError, ExpiredSignatureError
 
 import database
 import crud
@@ -31,7 +31,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_d
         if email is None:
             raise credentials_exception
         token_data = schemas.TokenData(email=email)
-    except JWTError:
+    except (JWTError, ExpiredSignatureError):
         raise credentials_exception
     user = crud.get_user_by_email(db, email=token_data.email)
     if user is None:
