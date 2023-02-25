@@ -1,0 +1,5 @@
+export const INDEX_PAGE = "/"
+export const HOME_PAGE = INDEX_PAGE + "home/"
+export const LOGIN_PAGE = INDEX_PAGE + "login/"
+export const DEVICES_PAGE = INDEX_PAGE + "devices/"
+export const DATA_PAGE = INDEX_PAGE + "data/"

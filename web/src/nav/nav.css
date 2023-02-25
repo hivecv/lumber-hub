@@ -1,0 +1,71 @@
+.site-layout-content {
+  min-height: 280px;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+#root .error {
+  color: red;
+}
+
+#root .ant-layout {
+  background: #fff0ea;
+}
+
+#root .ant-layout-header {
+  background: #86695d;
+  color: #FFF;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  vertical-align: middle;
+  padding-inline: 0;
+}
+
+#root .ant-layout-content {
+  padding: 50px;
+}
+
+#root .ant-layout-header .title {
+  background: #86695d;
+  color: #FFF;
+  min-width: 200px;
+}
+
+#root .ant-layout-header .ant-menu {
+  background: #168767;
+  color: #FFF;
+  width: 100%;
+  display: flex;
+}
+
+#root .ant-layout-header .ant-menu .ant-menu-item {
+  width: 100px;
+  text-align: left;
+}
+
+#root .ant-layout-footer {
+  background: #86695d;
+  color: #FFF;
+}
+
+.logo {
+  float: left;
+  width: 70px;
+  height: calc(100% - 10px);
+  margin: 5px;
+  background-image: url("../../public/android-chrome-512x512.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.ant-row-rtl .logo {
+  float: right;
+  margin: 16px 0 16px 24px;
+}
+
+.content {
+  padding: 50px;
+}
