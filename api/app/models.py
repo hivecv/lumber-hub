@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, JSON, VARCHAR
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, JSON, VARCHAR, DateTime, func
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -21,6 +21,7 @@ class Device(Base):
     config_schema = Column(JSON)
     config = Column(JSON)
     device_uuid = Column(String)
+    last_active = Column(DateTime(timezone=True), default=func.now())
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="devices")

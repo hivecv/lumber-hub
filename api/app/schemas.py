@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Union
 
 from pydantic import BaseModel
@@ -29,6 +30,7 @@ class DeviceCreate(DeviceBase):
 class Device(DeviceBase):
     id: int
     owner_id: int
+    last_active: datetime
     config: Union[str, None] = None
 
     class Config:

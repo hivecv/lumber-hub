@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import FastAPI, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -113,7 +115,7 @@ async def update_user_device(device_id: int, device: schemas.Device, current_use
     return device
 
 
-@app.delete("/users/me/devices/{device_id}/", responses={404: {"model": schemas.ErrorMessage}})
+@app.delete("/users/me/devices/{device_id}/", status_code=204, responses={404: {"model": schemas.ErrorMessage}})
 async def update_user_device(device_id: int, current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
     if device_id not in list(map(lambda item: item.id, current_user.devices)):
         return JSONResponse(
@@ -121,4 +123,16 @@ async def update_user_device(device_id: int, current_user: schemas.User = Depend
             content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified device"))
         )
     crud.delete_user_device(db, user_id=current_user.id, device_id=device_id)
-    return JSONResponse(status_code=204, content=None)
+
+
+@app.patch("/users/me/devices/{device_uuid}/heartbeat/", status_code=204, responses={404: {"model": schemas.ErrorMessage}})
+async def user_device_heartbeat(device_uuid: str, current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
+    for device in current_user.devices:
+        if device.device_uuid == device_uuid:
+            crud.update_user_device_heartbeat(db, user_id=current_user.id, device_id=device.id)
+            return
+
+    return JSONResponse(
+        status_code=404,
+        content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified device"))
+    )

@@ -16,6 +16,16 @@ class Device {
     return this.rawConfig.id
   }
 
+  lastActive() {
+    return new Date(this.rawConfig.last_active)
+  }
+
+  isActive() {
+    const current = new Date();
+    const td = (current.getTime() - this.lastActive().getTime()) / 1000
+    return td < 10
+  }
+
   prepareSchema(rawSchema) {
     return {
       title: 'Lumber Device Config',
