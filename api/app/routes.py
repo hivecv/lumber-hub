@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Union
 
 from fastapi import FastAPI, Depends
 from fastapi.responses import JSONResponse
@@ -103,6 +104,16 @@ def create_device_for_user(device: schemas.DeviceCreate, current_user: schemas.U
     else:
         return crud.create_user_device(db=db, device=device, user_id=current_user.id)
 
+
+@app.get("/users/me/devices/{device_id}/", response_model=schemas.Device, responses={404: {"model": schemas.ErrorMessage}})
+async def get_user_device(device_id: int, current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
+    if device_id not in list(map(lambda item: item.id, current_user.devices)):
+        return JSONResponse(
+            status_code=404,
+            content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified device"))
+        )
+    device = crud.get_user_device(db, user_id=current_user.id, device_id=device_id)
+    return device
 
 @app.put("/users/me/devices/{device_id}/", response_model=schemas.Device, responses={404: {"model": schemas.ErrorMessage}})
 async def update_user_device(device_id: int, device: schemas.Device, current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
