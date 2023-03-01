@@ -41,7 +41,7 @@ const ConfigureDrawer = ({device, onClose}) => {
           </Space>
         }
       >
-        <Form layout="vertical" form={form} hideRequiredMark>
+        <Form layout="vertical" form={form} hideRequiredMark initialValues={config}>
           {
             chunks.map((chunk, key) => (
               <Row gutter={16} key={key}>
@@ -58,7 +58,7 @@ const ConfigureDrawer = ({device, onClose}) => {
                           },
                         ]}
                       >
-                        <Input type={schema[field]} defaultValue={config[field]}/>
+                        <Input type={schema[field]}/>
                       </Form.Item>
                     </Col>
                   ))
