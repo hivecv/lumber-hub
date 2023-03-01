@@ -9,7 +9,17 @@ class Device {
   parseRaw(raw) {
     this.rawConfig = raw
     this.schema = JSON.parse(this.rawConfig.config_schema || "{}")
-    this.config = JSON.parse(this.rawConfig.config || "{}")
+    const raw_config = JSON.parse(this.rawConfig.config || "{}")
+    this.config = {}
+    for (const field in raw_config) {
+      switch (this.schema[field]) {
+        case "number":
+          this.config[field] = +raw_config[field]
+          break
+        default:
+          this.config[field] = raw_config[field]
+      }
+    }
     this.key = this.deviceId()
   }
 
