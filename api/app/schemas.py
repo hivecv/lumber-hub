@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Union
+from typing import Union, List, Any
 
 from pydantic import BaseModel
 
@@ -61,3 +61,26 @@ class ValidationMessage(BaseModel):
 
 class ErrorMessage(BaseModel):
     reason: str
+
+
+class LogMessage(BaseModel):
+    name: Union[str, None]
+    msg: Union[str, None]
+    args: Union[List[Any], None]
+    levelname: Union[str, None]
+    levelno: Union[int, None]
+    pathname: Union[str, None]
+    filename: Union[str, None]
+    module: Union[str, None]
+    exc_info: Union[str, None]
+    exc_text: Union[str, None]
+    stack_info: Union[str, None]
+    lineno: Union[int, None]
+    funcName: Union[str, None]
+    created: Union[float, None]
+    msecs: Union[float, None]
+    relativeCreated: Union[float, None]
+    thread: Union[int, None]
+    threadName: Union[str, None]
+    processName: Union[str, None]
+    process: Union[int, None]

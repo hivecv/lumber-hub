@@ -147,3 +147,16 @@ async def user_device_heartbeat(device_uuid: str, current_user: schemas.User = D
         status_code=404,
         content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified device"))
     )
+
+
+@app.post("/users/me/devices/{device_uuid}/logs/", status_code=204, responses={404: {"model": schemas.ErrorMessage}})
+async def user_device_logs(device_uuid: str, message: schemas.LogMessage, current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
+    for device in current_user.devices:
+        if device.device_uuid == device_uuid:
+            crud.create_device_log(db, device_id=device.id, log=message)
+            return
+
+    return JSONResponse(
+        status_code=404,
+        content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified device"))
+    )
