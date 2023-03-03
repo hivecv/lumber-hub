@@ -27,6 +27,10 @@ class Device {
     return this.rawConfig.id
   }
 
+  deviceUUID() {
+    return this.rawConfig.device_uuid
+  }
+
   lastActive() {
     return new Date(this.rawConfig.last_active)
   }

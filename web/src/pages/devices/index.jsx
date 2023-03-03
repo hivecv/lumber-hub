@@ -5,11 +5,13 @@ import * as timeago from 'timeago.js';
 import {deleteDevice, devicesSelector, fetchDevices} from "../../redux";
 import {Device} from "../../lumber";
 import ConfigureDrawer from "./ConfigureDrawer";
+import LogsDrawer from "./LogsDrawer";
 
 function Index() {
-  const [currentDevice, setCurrentDevice] = useState(null);
+  const [configureDevice, setConfigureDevice] = useState(null);
+  const [logsDevice, setLogsDevice] = useState(null);
   const dispatch = useDispatch();
-  const rawDevices = useSelector(devicesSelector)
+  const rawDevices = useSelector(devicesSelector);
   const devices = rawDevices.map(raw => new Device(raw));
 
   const columns = [{
@@ -43,8 +45,11 @@ function Index() {
       dataIndex: "config_schema",
       key: "action",
       render: (_, item) => <Space size="middle">
-        <Button type="link" onClick={() => setCurrentDevice(item)}>
+        <Button type="link" onClick={() => setConfigureDevice(item)}>
           Configure
+        </Button>
+        <Button type="link" onClick={() => setLogsDevice(item)}>
+          View logs
         </Button>
         <Button type="link" onClick={() => dispatch(deleteDevice({id: item.deviceId()}))}>
           Delete
@@ -59,7 +64,8 @@ function Index() {
 
   return (
     <>
-      <ConfigureDrawer device={currentDevice} onClose={() => setCurrentDevice(null)}/>
+      <ConfigureDrawer device={configureDevice} onClose={() => setConfigureDevice(null)}/>
+      <LogsDrawer device={logsDevice} onClose={() => setLogsDevice(null)}/>
       <Table columns={columns} dataSource={devices} />
     </>
   )

@@ -84,3 +84,6 @@ class LogMessage(BaseModel):
     threadName: Union[str, None]
     processName: Union[str, None]
     process: Union[int, None]
+
+    class Config:
+        orm_mode = True

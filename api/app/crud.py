@@ -93,3 +93,7 @@ def create_device_log(db: Session, device_id: int, log: schemas.LogMessage):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+def get_device_logs(db: Session, device_id: int):
+    return db.query(models.LogMessage).filter(models.LogMessage.device_id == device_id).all()
