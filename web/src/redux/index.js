@@ -13,11 +13,11 @@ const getAuthConfig = (thunk, extraHeaders = {}) => {
 }
 
 
-export const fetchProfile = createAsyncThunk(
-  'profile/fetch',
+export const fetchLogs = createAsyncThunk(
+  'logs/fetch',
   async (act, thunk) => {
-    const response = await request(GET, `/some/data`);
-    thunk.dispatch(updateAuth(response.data))
+    const response = await request(GET, `/api/users/me/devices/${act}/logs/`, {}, getAuthConfig(thunk));
+    thunk.dispatch(updateLogs(response.data))
   }
 )
 
@@ -75,6 +75,7 @@ export const appSlice = createSlice({
   initialState: {
     // inProgress: false,
     devices: [],
+    logs: [],
     auth: {
       access_token: get("auth_token") || null,
       token_type: null,
@@ -88,18 +89,22 @@ export const appSlice = createSlice({
     updateDevices: (state, action) => {
       state.devices = action.payload
     },
+    updateLogs: (state, action) => {
+      state.logs = action.payload
+    },
   },
   extraReducers: (builder) => {
-    // builder.addCase(fetchData.pending, (state, action) => {
-    //   state.inProgress = true
-    // })
+    builder.addCase(fetchLogs.pending, (state, action) => {
+      state.logs = []
+    })
   },
 })
 
 export const authTokenSelector = state => state.app.auth.access_token;
 export const devicesSelector = state => state.app.devices;
+export const logsSelector = state => state.app.logs;
 
-export const {updateAuth, updateDevices} = appSlice.actions;
+export const {updateAuth, updateDevices, updateLogs} = appSlice.actions;
 
 
 export default configureStore({

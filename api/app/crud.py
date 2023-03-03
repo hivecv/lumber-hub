@@ -85,3 +85,15 @@ def create_user_device(db: Session, device: schemas.DeviceCreate, user_id: int):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+def create_device_log(db: Session, device_id: int, log: schemas.LogMessage):
+    db_item = models.LogMessage(**log.dict(), device_id=device_id)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def get_device_logs(db: Session, device_id: int):
+    return db.query(models.LogMessage).filter(models.LogMessage.device_id == device_id).all()
