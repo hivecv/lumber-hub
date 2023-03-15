@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import Union
 
 from sqlalchemy.orm import Session
 
@@ -53,8 +54,8 @@ def get_user_device(db: Session, user_id: int, device_id: int):
     return db.query(models.Device).filter(models.Device.owner_id == user_id).filter(models.Device.id == device_id).first()
 
 
-def update_user_device(db: Session, user_id: int, device: schemas.Device):
-    db_device = get_user_device(db, user_id, device.id)
+def update_user_device(db: Session, user_id: int, device_id: int, device: Union[schemas.DeviceCreate, schemas.Device]):
+    db_device = get_user_device(db, user_id, device_id)
     device_data = device.dict(exclude_unset=True)
     for key, value in device_data.items():
         setattr(db_device, key, value)
@@ -96,4 +97,21 @@ def create_device_log(db: Session, device_id: int, log: schemas.LogMessage):
 
 
 def get_device_logs(db: Session, device_id: int):
-    return db.query(models.LogMessage).filter(models.LogMessage.device_id == device_id).all()
+    return db.query(models.LogMessage).filter(models.LogMessage.device_id == device_id).order_by(models.LogMessage.created.desc()).limit(100).all()
+
+
+def create_hub_action(db: Session, device_id: int, action: schemas.HubActionBase):
+    db_item = models.HubAction(**action.dict(), device_id=device_id)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def get_hub_actions(db: Session, device_id: int):
+    since = datetime.utcnow() - timedelta(minutes=10)
+    return db.query(models.HubAction).filter(models.HubAction.device_id == device_id).filter(models.HubAction.created > since).order_by(models.HubAction.created.desc()).all()
+
+
+def remove_hub_actions(db: Session, device_id: int):
+    return db.query(models.HubAction).filter(models.HubAction.device_id == device_id).delete()

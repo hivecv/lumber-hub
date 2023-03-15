@@ -49,7 +49,7 @@ const LogsDrawer = ({device, onClose}) => {
         }
       >
         <div className="code-block">
-          {logs.map(log => <p>[{formatDate(log.created)}] <b>{log.msg}</b></p>)}
+          {logs.map(log => <p key={log.id}>[{formatDate(log.created)}] <b>{log.msg}</b></p>)}
         </div>
       </Drawer>
     </>

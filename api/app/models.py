@@ -53,3 +53,14 @@ class LogMessage(Base):
     process = Column(Integer, nullable=True)
 
     device = relationship("Device")
+
+
+class HubAction(Base):
+    __tablename__ = "actions"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    payload = Column(JSON, nullable=True)
+    created = Column(DateTime(timezone=True), default=func.now())
+    device_id = Column(Integer, ForeignKey("devices.id"))
+
+    device = relationship("Device")

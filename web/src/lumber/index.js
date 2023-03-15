@@ -27,6 +27,16 @@ class Device {
     return this.rawConfig.id
   }
 
+  startLiveStreamAction() {
+    return {
+      id: this.deviceUUID(),
+      data: {
+        name: "LIVESTREAM_START",
+        payload: {sdp: ''},
+      },
+    }
+  }
+
   deviceUUID() {
     return this.rawConfig.device_uuid
   }

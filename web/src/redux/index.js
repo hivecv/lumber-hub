@@ -1,10 +1,25 @@
 import {configureStore, createSlice, createAsyncThunk} from '@reduxjs/toolkit'
 import request, {DELETE, GET, POST, PUT} from "./request";
-import {get} from './localstorage';
+import {get, save} from './localstorage';
 
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function handleError(e, thunk) {
+  if(!e || !e.response) {
+    return
+  }
+
+  if(e.response.status === 401) {
+    save("auth_token", null)
+    thunk.dispatch(updateAuth({
+      access_token: null,
+      token_type: null,
+      error: null,
+    }))
+  }
 }
 
 const getAuthConfig = (thunk, extraHeaders = {}) => {
@@ -17,15 +32,28 @@ export const fetchLogs = createAsyncThunk(
   'logs/fetch',
   async (act, thunk) => {
     const response = await request(GET, `/api/users/me/devices/${act}/logs/`, {}, getAuthConfig(thunk));
-    thunk.dispatch(updateLogs(response.data))
+    thunk.dispatch(updateLogs(response.data.reverse()))
+  }
+)
+
+
+export const fetchActions = createAsyncThunk(
+  'actions/fetch',
+  async (act, thunk) => {
+    const response = await request(GET, `/api/users/me/devices/${act}/actions/`, {}, getAuthConfig(thunk));
+    thunk.dispatch(updateActions(response.data))
   }
 )
 
 export const fetchDevices = createAsyncThunk(
   'devices/fetch',
   async (act, thunk) => {
-    const response = await request(GET, `/api/users/me/devices/`, {}, getAuthConfig(thunk));
-    thunk.dispatch(updateDevices(response.data))
+    try {
+      const response = await request(GET, `/api/users/me/devices/`, {}, getAuthConfig(thunk));
+      thunk.dispatch(updateDevices(response.data))
+    } catch (e) {
+      handleError(e, thunk);
+    }
   }
 )
 
@@ -45,6 +73,16 @@ export const deleteDevice = createAsyncThunk(
   async (act, thunk) => {
     const response = await request(DELETE, `/api/users/me/devices/${act['id']}/`, {}, getAuthConfig(thunk));
     thunk.dispatch(fetchDevices());
+    if(act.callback) {
+      act.callback(response.data)
+    }
+  }
+)
+export const addAction = createAsyncThunk(
+  'actions/add',
+  async (act, thunk) => {
+    const response = await request(POST, `/api/users/me/devices/${act['id']}/actions/`, act['data'], getAuthConfig(thunk));
+    thunk.dispatch(fetchActions(act['id']))
     if(act.callback) {
       act.callback(response.data)
     }
@@ -76,6 +114,7 @@ export const appSlice = createSlice({
     // inProgress: false,
     devices: [],
     logs: [],
+    actions: [],
     auth: {
       access_token: get("auth_token") || null,
       token_type: null,
@@ -92,6 +131,9 @@ export const appSlice = createSlice({
     updateLogs: (state, action) => {
       state.logs = action.payload
     },
+    updateActions: (state, action) => {
+      state.actions = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchLogs.pending, (state, action) => {
@@ -103,8 +145,9 @@ export const appSlice = createSlice({
 export const authTokenSelector = state => state.app.auth.access_token;
 export const devicesSelector = state => state.app.devices;
 export const logsSelector = state => state.app.logs;
+export const actionsSelector = state => state.app.actions;
 
-export const {updateAuth, updateDevices, updateLogs} = appSlice.actions;
+export const {updateAuth, updateDevices, updateLogs, updateActions} = appSlice.actions;
 
 
 export default configureStore({

@@ -64,6 +64,7 @@ class ErrorMessage(BaseModel):
 
 
 class LogMessage(BaseModel):
+    id: Union[int, None]
     name: Union[str, None]
     msg: Union[str, None]
     args: Union[List[Any], None]
@@ -84,6 +85,19 @@ class LogMessage(BaseModel):
     threadName: Union[str, None]
     processName: Union[str, None]
     process: Union[int, None]
+
+    class Config:
+        orm_mode = True
+
+
+class HubActionBase(BaseModel):
+    name: str
+    payload: Union[dict, None] = None
+
+
+class HubAction(HubActionBase):
+    id: int
+    created: datetime
 
     class Config:
         orm_mode = True
