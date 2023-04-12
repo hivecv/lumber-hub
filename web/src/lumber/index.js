@@ -1,6 +1,9 @@
 import Ajv from "ajv";
+import Peer from "simple-peer";
 
 class Device {
+  webrtc = null;
+
   constructor(raw) {
     this.validator = new Ajv();
     this.parseRaw(raw);
@@ -10,16 +13,7 @@ class Device {
     this.rawConfig = raw
     this.schema = JSON.parse(this.rawConfig.config_schema || "{}")
     const raw_config = JSON.parse(this.rawConfig.config || "{}")
-    this.config = {}
-    for (const field in raw_config) {
-      switch (this.schema[field]) {
-        case "number":
-          this.config[field] = +raw_config[field]
-          break
-        default:
-          this.config[field] = raw_config[field]
-      }
-    }
+    this.updateConfig(raw_config)
     this.key = this.deviceId()
   }
 
@@ -27,14 +21,18 @@ class Device {
     return this.rawConfig.id
   }
 
-  startLiveStreamAction() {
-    return {
-      id: this.deviceUUID(),
-      data: {
-        name: "LIVESTREAM_START",
-        payload: {sdp: ''},
-      },
-    }
+  startLiveStream(on_signal, on_video) {
+    this.webrtc = new Peer({initiator: true});
+    this.webrtc.on('signal', data => {
+      on_signal({
+        id: this.deviceUUID(),
+        data: {
+          name: "LIVESTREAM_CLIENT",
+          payload: data,
+        },
+      })
+    })
+    this.webrtc.on('stream', on_video)
   }
 
   deviceUUID() {
@@ -72,6 +70,19 @@ class Device {
   }
   hasValidConfig() {
     return this.validator.compile(this.prepareSchema(this.schema))(this.config)
+  }
+
+  updateConfig(raw_config) {
+    this.config = {}
+    for (const field in raw_config) {
+      switch (this.schema[field]) {
+        case "number":
+          this.config[field] = +raw_config[field]
+          break
+        default:
+          this.config[field] = raw_config[field]
+      }
+    }
   }
 
   getJsonData() {

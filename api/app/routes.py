@@ -101,6 +101,7 @@ async def read_own_devices(current_user: schemas.User = Depends(get_current_acti
 def create_device_for_user(device: schemas.DeviceCreate, current_user: schemas.User = Depends(get_current_active_user), db=Depends(get_db)):
     db_device = crud.get_device_by_uuid(db, uuid=device.device_uuid)
     if db_device:
+        crud.remove_hub_actions(db, device_id=db_device.id)
         return crud.update_user_device(db, user_id=current_user.id, device_id=db_device.id, device=device)
     else:
         return crud.create_user_device(db, device=device, user_id=current_user.id)

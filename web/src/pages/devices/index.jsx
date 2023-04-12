@@ -12,9 +12,18 @@ function Index() {
   const [configureDevice, setConfigureDevice] = useState(null);
   const [logsDevice, setLogsDevice] = useState(null);
   const [liveStreamDevice, setLiveStreamDevice] = useState(null);
+  const [liveStreamVideo, setLiveStreamVideo] = useState(null);
   const dispatch = useDispatch();
   const rawDevices = useSelector(devicesSelector);
   const devices = rawDevices.map(raw => new Device(raw));
+
+  async function startLiveStream(item) {
+    item.startLiveStream(
+      action => console.log("ACTION", action) || dispatch(addAction(action)),
+      stream => setLiveStreamVideo(stream)
+    )
+    setLiveStreamDevice(item);
+  }
 
   const columns = [{
       title: "Device No.",
@@ -53,7 +62,7 @@ function Index() {
         <Button type="link" onClick={() => setLogsDevice(item)}>
           View logs
         </Button>
-        <Button disabled={!item.isActive()} type="link" onClick={() => {dispatch(addAction(item.startLiveStreamAction())); setLiveStreamDevice(item);}}>
+        <Button disabled={!item.isActive()} type="link" onClick={() => startLiveStream(item)}>
           Live view
         </Button>
         <Button type="link" onClick={() => dispatch(deleteDevice({id: item.deviceId()}))}>

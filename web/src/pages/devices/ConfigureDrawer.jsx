@@ -14,13 +14,13 @@ const ConfigureDrawer = ({device, onClose}) => {
   const submit = () => {
     form.validateFields()
       .then(values => {
-        device.config = values
+        device.updateConfig(values)
         dispatch(updateDevice({
           ...device.getJsonData(),
           callback: onClose
         }))
       })
-      .catch(() => {})
+      .catch(e => console.error(e))
   }
   return (
     <>

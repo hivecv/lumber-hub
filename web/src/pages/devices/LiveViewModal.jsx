@@ -6,17 +6,17 @@ import {useDispatch, useSelector} from "react-redux";
 const LiveViewModal = ({device, onClose}) => {
   const dispatch = useDispatch();
   const actions = useSelector(actionsSelector);
-  const offer = actions.filter(action => action.type === "RTC_OFFER")[0]
+  const signals = actions.filter(action => action.name === "LIVESTREAM_CLIENT")
 
   useEffect(() => {
     if(device) {
       dispatch(fetchActions(device.deviceUUID()))
     }
     const intervalId = setInterval(() => {
-      if(!offer && device) {
+      if(device) {
         dispatch(fetchActions(device.deviceUUID()))
       }
-    }, 1000)
+    }, 500)
 
     return () => clearInterval(intervalId); //This is important
   }, [device])
@@ -29,7 +29,7 @@ const LiveViewModal = ({device, onClose}) => {
     centered
     onCancel={onClose}
   >
-    {JSON.stringify(actions)}
+    {JSON.stringify(signals)}
   </Modal>
 }
 

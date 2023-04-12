@@ -110,7 +110,7 @@ def create_hub_action(db: Session, device_id: int, action: schemas.HubActionBase
 
 def get_hub_actions(db: Session, device_id: int):
     since = datetime.utcnow() - timedelta(minutes=10)
-    return db.query(models.HubAction).filter(models.HubAction.device_id == device_id).filter(models.HubAction.created > since).order_by(models.HubAction.created.desc()).all()
+    return db.query(models.HubAction).filter(models.HubAction.device_id == device_id).filter(models.HubAction.created > since).order_by(models.HubAction.created.asc()).all()
 
 
 def remove_hub_actions(db: Session, device_id: int):

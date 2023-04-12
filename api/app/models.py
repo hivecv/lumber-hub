@@ -25,6 +25,8 @@ class Device(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="devices")
+    logs = relationship("LogMessage", back_populates="device", cascade="all, delete-orphan")
+    actions = relationship("HubAction", back_populates="device", cascade="all, delete-orphan")
 
 
 class LogMessage(Base):
