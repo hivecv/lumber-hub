@@ -2,10 +2,26 @@ from fastapi import Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from jose import JWTError, ExpiredSignatureError
+from sqlalchemy.orm import Session
 
 from db.database import get_db
-from modules import schemas, crud, auth
+from db.models import User
+from modules import schemas, auth
 from routes import app
+from modules.auth import verify_password, get_password_hash
+
+
+def get_user_by_email(db: Session, email: str):
+    return db.query(User).filter(User.email == email).first()
+
+
+def authenticate_user(db: Session, email: str, password: str):
+    user = get_user_by_email(db, email)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
 
 
 async def get_current_user(token: str = Depends(auth.oauth2_scheme), db=Depends(get_db)):
@@ -20,7 +36,7 @@ async def get_current_user(token: str = Depends(auth.oauth2_scheme), db=Depends(
         token_data = schemas.TokenData(email=email)
     except (JWTError, ExpiredSignatureError):
         raise credentials_exception
-    user = crud.get_user_by_email(db, email=token_data.email)
+    user = get_user_by_email(db, email=token_data.email)
     if user is None:
         raise credentials_exception
     return user
@@ -32,9 +48,18 @@ async def get_current_active_user(current_user: schemas.User = Depends(get_curre
     return current_user
 
 
+def create_user(db: Session, user: schemas.UserCreate):
+    hashed_password = get_password_hash(user.password)
+    db_user = User(email=user.email, hashed_password=hashed_password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
 @app.post("/token/", response_model=schemas.Token, responses={401: {"model": schemas.ErrorMessage}})
-async def login_for_access_token(data: schemas.TokenForm, db=Depends(get_db)):
-    user = crud.authenticate_user(db, data.email, data.password)
+async def login(data: schemas.TokenForm, db=Depends(get_db)):
+    user = authenticate_user(db, data.email, data.password)
     if not user:
         return JSONResponse(status_code=401, content=jsonable_encoder(schemas.ErrorMessage(reason="Incorrect username or password")))
 
@@ -43,21 +68,11 @@ async def login_for_access_token(data: schemas.TokenForm, db=Depends(get_db)):
 
 
 @app.post("/users/", response_model=schemas.User, responses={400: {"model": schemas.ValidationMessage}})
-def create_user(user: schemas.UserCreate, db=Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
+def new_user(user: schemas.UserCreate, db=Depends(get_db)):
+    db_user = get_user_by_email(db, email=user.email)
     if db_user:
         return JSONResponse(status_code=400, content=jsonable_encoder(schemas.ValidationMessage(field="email", error="Email already registered!")))
-    return crud.create_user(db=db, user=user)
-
-
-@app.get("/users/", response_model=list[schemas.User], responses={400: {"model": schemas.ValidationMessage}})
-def read_users(skip: int = 0, limit: int = 100, db=Depends(get_db)):
-    if limit < 1:
-        return JSONResponse(status_code=400, content=jsonable_encoder(schemas.ValidationMessage(field="limit", error="Limit must be greater than 0!")))
-    if skip < 0:
-        return JSONResponse(status_code=400, content=jsonable_encoder(schemas.ValidationMessage(field="skip", error="Skip must be a positive integer!")))
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
+    return create_user(db=db, user=user)
 
 
 @app.get("/users/me/", response_model=schemas.User)
