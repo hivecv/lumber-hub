@@ -18,8 +18,6 @@ class Device(Base):
     __tablename__ = "devices"
 
     id = Column(Integer, primary_key=True, index=True)
-    config_schema = Column(JSON)
-    config = Column(JSON)
     device_uuid = Column(String)
     last_active = Column(DateTime(timezone=True), default=func.now())
     owner_id = Column(Integer, ForeignKey("users.id"))
@@ -52,4 +50,26 @@ class LogMessage(Base):
     processName = Column(String, nullable=True)
     process = Column(Integer, nullable=True)
 
-    device = relationship("Device")
+    device = relationship("Device", back_populates="logs")
+
+
+class Config(Base):
+    __tablename__ = "configs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(Integer, ForeignKey("devices.id"))
+    config_schema = Column(JSON)
+    config = Column(JSON, nullable=True)
+    modified = Column(DateTime(timezone=True), default=func.now())
+
+    device = relationship("Device", back_populates="config")
+
+
+class Alert(Base):
+    __tablename__ = "alerts"
+    id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(Integer, ForeignKey("devices.id"))
+    type = Column(String)
+    msg = Column(String, nullable=True)
+
+    device = relationship("Device", back_populates="alerts")
