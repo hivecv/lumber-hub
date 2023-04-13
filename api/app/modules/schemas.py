@@ -9,17 +9,12 @@ class Token(BaseModel):
     token_type: str
 
 
-class TokenData(BaseModel):
-    email: str
-
-
-class TokenForm(BaseModel):
+class LoginForm(BaseModel):
     email: str
     password: str
 
 
 class DeviceBase(BaseModel):
-    config_schema: str
     device_uuid: str
 
 
@@ -31,7 +26,6 @@ class Device(DeviceBase):
     id: int
     owner_id: int
     last_active: datetime
-    config: Union[str, None] = None
 
     class Config:
         orm_mode = True
@@ -63,7 +57,7 @@ class ErrorMessage(BaseModel):
     reason: str
 
 
-class LogMessage(BaseModel):
+class LogMessageBase(BaseModel):
     name: Union[str, None]
     msg: Union[str, None]
     args: Union[List[Any], None]
@@ -87,3 +81,24 @@ class LogMessage(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class DeviceConfigBase(BaseModel):
+    config_schema: dict
+    config: Union[dict, None]
+    modified: datetime
+
+
+class DeviceConfigResponse(DeviceConfigBase):
+    id: int
+
+
+class DeviceAlertBase(BaseModel):
+    device_id: int
+    type: str
+    msg: Union[str, None]
+
+
+class DeviceAlertResponse(DeviceAlertBase):
+    id: int
+    created: datetime

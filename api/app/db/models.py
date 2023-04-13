@@ -53,7 +53,7 @@ class LogMessage(Base):
     device = relationship("Device", back_populates="logs")
 
 
-class Config(Base):
+class DeviceConfig(Base):
     __tablename__ = "configs"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -65,11 +65,12 @@ class Config(Base):
     device = relationship("Device", back_populates="config")
 
 
-class Alert(Base):
+class DeviceAlert(Base):
     __tablename__ = "alerts"
     id = Column(Integer, primary_key=True, index=True)
     device_id = Column(Integer, ForeignKey("devices.id"))
     type = Column(String)
     msg = Column(String, nullable=True)
+    created = Column(DateTime(timezone=True), default=func.now())
 
     device = relationship("Device", back_populates="alerts")
