@@ -1,6 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, Float, String, JSON, ARRAY, DateTime, func, BigInteger
 from sqlalchemy.orm import relationship
-from database import Base
+from db.database import Base
 
 
 class User(Base):
@@ -23,6 +23,9 @@ class Device(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="devices")
+    logs = relationship("LogMessage", back_populates="device")
+    config = relationship("DeviceConfig", back_populates="device")
+    alerts = relationship("DeviceAlert", back_populates="device")
 
 
 class LogMessage(Base):

@@ -1,6 +1,5 @@
 from datetime import datetime
-from typing import Union, List, Any
-
+from typing import List, Any, Optional
 from pydantic import BaseModel
 
 
@@ -22,10 +21,46 @@ class DeviceCreate(DeviceBase):
     pass
 
 
+class DeviceConfigBase(BaseModel):
+    modified: Optional[datetime]
+
+    class Config:
+        orm_mode = True
+
+
+class DeviceConfigCreate(DeviceConfigBase):
+    config_schema: dict
+
+
+class DeviceConfigUpdate(DeviceConfigBase):
+    config: dict
+
+
+class DeviceConfigResponse(DeviceConfigBase):
+    id: int
+    config: Optional[dict]
+    config_schema: dict
+
+
+class DeviceAlertBase(BaseModel):
+    device_id: int
+    type: str
+    msg: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
+class DeviceAlertResponse(DeviceAlertBase):
+    id: int
+    created: datetime
+
+
 class Device(DeviceBase):
     id: int
     owner_id: int
     last_active: datetime
+    config: list[DeviceConfigResponse] = []
 
     class Config:
         orm_mode = True
@@ -58,47 +93,26 @@ class ErrorMessage(BaseModel):
 
 
 class LogMessageBase(BaseModel):
-    name: Union[str, None]
-    msg: Union[str, None]
-    args: Union[List[Any], None]
-    levelname: Union[str, None]
-    levelno: Union[int, None]
-    pathname: Union[str, None]
-    filename: Union[str, None]
-    module: Union[str, None]
-    exc_info: Union[str, None]
-    exc_text: Union[str, None]
-    stack_info: Union[str, None]
-    lineno: Union[int, None]
-    funcName: Union[str, None]
-    created: Union[float, None]
-    msecs: Union[float, None]
-    relativeCreated: Union[float, None]
-    thread: Union[int, None]
-    threadName: Union[str, None]
-    processName: Union[str, None]
-    process: Union[int, None]
+    name: Optional[str]
+    msg: Optional[str]
+    args: Optional[List[Any]]
+    levelname: Optional[str]
+    levelno: Optional[int]
+    pathname: Optional[str]
+    filename: Optional[str]
+    module: Optional[str]
+    exc_info: Optional[str]
+    exc_text: Optional[str]
+    stack_info: Optional[str]
+    lineno: Optional[int]
+    funcName: Optional[str]
+    created: Optional[float]
+    msecs: Optional[float]
+    relativeCreated: Optional[float]
+    thread: Optional[int]
+    threadName: Optional[str]
+    processName: Optional[str]
+    process: Optional[int]
 
     class Config:
         orm_mode = True
-
-
-class DeviceConfigBase(BaseModel):
-    config_schema: dict
-    config: Union[dict, None]
-    modified: datetime
-
-
-class DeviceConfigResponse(DeviceConfigBase):
-    id: int
-
-
-class DeviceAlertBase(BaseModel):
-    device_id: int
-    type: str
-    msg: Union[str, None]
-
-
-class DeviceAlertResponse(DeviceAlertBase):
-    id: int
-    created: datetime

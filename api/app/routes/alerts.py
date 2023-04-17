@@ -21,7 +21,7 @@ def get_device_alerts(db: Session, device_id: int):
     return db.query(DeviceAlert).filter(DeviceAlert.device_id == device_id).all()
 
 
-@app.post("/users/me/devices/{device_uuid}/alerts/", response_model=schemas.DeviceAlertResponse, responses={404: {"model": schemas.ErrorMessage}})
+@app.post("/devices/{device_uuid}/alerts/", response_model=schemas.DeviceAlertResponse, responses={404: {"model": schemas.ErrorMessage}})
 async def add_device_alert(device_uuid: str, alert: schemas.DeviceAlertBase, current_user: schemas.User = Depends(user.get_current_active_user), db=Depends(get_db)):
     for device in current_user.devices:
         if device.device_uuid == device_uuid:
@@ -34,7 +34,7 @@ async def add_device_alert(device_uuid: str, alert: schemas.DeviceAlertBase, cur
     )
 
 
-@app.get("/users/me/devices/{device_uuid}/alerts/", response_model=list[schemas.DeviceAlertResponse], responses={404: {"model": schemas.ErrorMessage}})
+@app.get("/devices/{device_uuid}/alerts/", response_model=list[schemas.DeviceAlertResponse], responses={404: {"model": schemas.ErrorMessage}})
 async def fetch_device_alerts(device_uuid: str, current_user: schemas.User = Depends(user.get_current_active_user), db=Depends(get_db)):
     for device in current_user.devices:
         if device.device_uuid == device_uuid:
