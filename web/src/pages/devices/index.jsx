@@ -51,7 +51,7 @@ function Index() {
         <Button type="link" onClick={() => setLogsDevice(item)}>
           View logs
         </Button>
-        <Button type="link" onClick={() => dispatch(deleteDevice({id: item.deviceId()}))}>
+        <Button type="link" onClick={() => dispatch(deleteDevice({id: item.deviceUUID()}))}>
           Delete
         </Button>
       </Space>

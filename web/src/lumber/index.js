@@ -7,32 +7,23 @@ class Device {
     this.currentDate = new Date();
   }
   parseRaw(raw) {
-    this.rawConfig = raw
-    this.schema = JSON.parse(this.rawConfig.config_schema || "{}")
-    const raw_config = JSON.parse(this.rawConfig.config || "{}")
-    this.config = {}
-    for (const field in raw_config) {
-      switch (this.schema[field]) {
-        case "number":
-          this.config[field] = +raw_config[field]
-          break
-        default:
-          this.config[field] = raw_config[field]
-      }
-    }
+    this.raw = raw
+    const latest = raw.config.slice()
+    latest.sort((a, b) => b.id - a.id)
+    this.config = latest[0] || {}
     this.key = this.deviceId()
   }
 
   deviceId() {
-    return this.rawConfig.id
+    return this.raw.id
   }
 
   deviceUUID() {
-    return this.rawConfig.device_uuid
+    return this.raw.device_uuid
   }
 
   lastActive() {
-    return new Date(this.rawConfig.last_active)
+    return new Date(this.raw.last_active)
   }
 
   isActive() {
@@ -61,14 +52,10 @@ class Device {
     };
   }
   hasValidConfig() {
-    return this.validator.compile(this.prepareSchema(this.schema))(this.config)
-  }
-
-  getJsonData() {
-    return {
-      ...this.rawConfig,
-      config_schema: JSON.stringify(this.schema),
-      config: JSON.stringify(this.config),
+    try {
+      return this.validator.compile(this.prepareSchema(this.config.config_schema))(this.config)
+    } catch (e) {
+      return false;
     }
   }
 }

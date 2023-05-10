@@ -45,6 +45,18 @@ async def add_device_config(device_uuid: str, config: schemas.DeviceConfigCreate
     )
 
 
+@app.get("/devices/{device_uuid}/configs/", response_model=list[schemas.DeviceConfigResponse], responses={404: {"model": schemas.ErrorMessage}})
+async def fetch_device_configs(device_uuid: str, current_user: schemas.User = Depends(user.get_current_active_user), db=Depends(get_db)):
+    for device in current_user.devices:
+        if device.device_uuid == device_uuid:
+            return get_configs(db, device_id=device.id)
+
+    return JSONResponse(
+        status_code=404,
+        content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified device"))
+    )
+
+
 @app.put("/devices/{device_uuid}/configs/{config_id}/", response_model=schemas.DeviceConfigResponse, responses={404: {"model": schemas.ErrorMessage}})
 async def update_device_config(device_uuid: str, config_id: int, config: schemas.DeviceConfigUpdate, current_user: schemas.User = Depends(user.get_current_active_user), db=Depends(get_db)):
     for device in current_user.devices:
@@ -60,13 +72,15 @@ async def update_device_config(device_uuid: str, config_id: int, config: schemas
     )
 
 
-@app.get("/devices/{device_uuid}/configs/", response_model=list[schemas.DeviceConfigResponse], responses={404: {"model": schemas.ErrorMessage}})
-async def fetch_device_configs(device_uuid: str, current_user: schemas.User = Depends(user.get_current_active_user), db=Depends(get_db)):
+@app.get("/devices/{device_uuid}/configs/{config_id}/", response_model=schemas.DeviceConfigResponse, responses={404: {"model": schemas.ErrorMessage}})
+async def fetch_device_configs(device_uuid: str, config_id: int, current_user: schemas.User = Depends(user.get_current_active_user), db=Depends(get_db)):
     for device in current_user.devices:
         if device.device_uuid == device_uuid:
-            return get_configs(db, device_id=device.id)
+            for db_config in device.config:
+                if db_config.id == config_id:
+                    return db_config
 
     return JSONResponse(
         status_code=404,
-        content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified device"))
+        content=jsonable_encoder(schemas.ErrorMessage(reason="Could not find specified config"))
     )

@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from jose import JWTError, ExpiredSignatureError
@@ -25,9 +25,9 @@ def authenticate_user(db: Session, email: str, password: str):
 
 
 async def get_current_user(token: str = Depends(auth.oauth2_scheme), db=Depends(get_db)):
-    credentials_exception = JSONResponse(
+    credentials_exception = HTTPException(
         status_code=401,
-        content=jsonable_encoder(schemas.ErrorMessage(reason="Could not validate credentials"))
+        detail=jsonable_encoder(schemas.ErrorMessage(reason="Could not validate credentials"))
     )
     try:
         email = auth.decode_token(token)
@@ -43,9 +43,9 @@ async def get_current_user(token: str = Depends(auth.oauth2_scheme), db=Depends(
 
 async def get_current_active_user(current_user: schemas.User = Depends(get_current_user)):
     if not current_user.is_active:
-        raise JSONResponse(
+        raise HTTPException(
             status_code=403,
-            content=jsonable_encoder(schemas.ErrorMessage(reason="Could not validate credentials"))
+            detail=jsonable_encoder(schemas.ErrorMessage(reason="Could not validate credentials"))
         )
     return current_user
 
