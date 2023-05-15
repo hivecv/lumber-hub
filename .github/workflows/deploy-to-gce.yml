@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Build and Deploy to Google Compute Engine
+name: Deployment
 
 on:
   push:
@@ -58,8 +58,9 @@ jobs:
         path: build
 
   setup-build-publish-deploy:
-    name: Deploy
+    name: Publish in GCE
     runs-on: ubuntu-latest
+    needs: build-app
 
     # Add "id-token" with the intended permissions.
     permissions:
