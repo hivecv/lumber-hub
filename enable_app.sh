@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 (cd web && yarn && yarn build)
 (cd api && python3 -m pip install -U pip && python3 -m pip install -r requirements.txt)
 
