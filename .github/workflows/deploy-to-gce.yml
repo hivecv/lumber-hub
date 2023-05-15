@@ -25,6 +25,38 @@ env:
   GCE_INSTANCE_ZONE: us-west4-a
 
 jobs:
+  build-app:
+    name: Build web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./web
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Cache node modules
+      id: cache-npm
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-node-modules
+      with:
+        # npm cache files are stored in `~/.npm` on Linux/macOS
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+    - name: Install
+      run: npm install
+    - name: Build
+      run: npm run build
+    - name: Upload build dir
+      uses: actions/upload-artifact@v3
+      with:
+        name: web-build
+        path: build
+
   setup-build-publish-deploy:
     name: Deploy
     runs-on: ubuntu-latest
@@ -40,8 +72,14 @@ jobs:
       with:
         credentials_json: '${{ secrets.GCE_SA_KEY }}'
 
+    - name: Download web build
+      uses: actions/download-artifact@v3
+      with:
+        name: web-build
+
     - name: Deploy
       run: |-
         gcloud compute ssh \
           --zone "$GCE_INSTANCE_ZONE" "lukasz@$GCE_INSTANCE"\
           -- "cd /home/lukasz/lumber-hub && git reset --hard HEAD && git pull && bash enable_app.sh"
+        gcloud compute scp -r web/build "lukasz@$GCE_INSTANCE:/home/lukasz/lumber-hub/web/build" --zone "$GCE_INSTANCE_ZONE"
