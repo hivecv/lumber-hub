@@ -2,8 +2,9 @@
 
 set -e
 
-(cd web && yarn && yarn build)
+(cd web && yarn install --production  && yarn build)
 (cd api && python3 -m pip install -U pip && python3 -m pip install -r requirements.txt)
+certbot certonly -d hub.hivecv.com -d www.hub.hivecv.com
 
 sed -i "s@WORKDIR@$PWD@g" $PWD/lumber.service
 sed -i "s@WORKDIR@$PWD@g" $PWD/nginx.conf
