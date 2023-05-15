@@ -55,7 +55,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: web-build
-        path: build
+        path: web/build/
 
   setup-build-publish-deploy:
     name: Publish in GCE
