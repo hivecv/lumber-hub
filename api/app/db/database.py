@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 SQLALCHEMY_DATABASE_URL = "postgresql://{}:{}@127.0.0.1:5432/{}".format(
     os.getenv('POSTGRES_USER', 'lumber'), os.getenv('POSTGRES_PASSWORD', 'lumber'),
-    "0.0.0.0", os.getenv('POSTGRES_DB', 'lumber')
+    os.getenv('POSTGRES_DB', 'lumber')
 )
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
