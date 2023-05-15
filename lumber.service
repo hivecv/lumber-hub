@@ -5,6 +5,7 @@ After=multi-user.target
 Type=simple
 Restart=always
 WorkingDirectory=WORKDIR/api/
+User=lukasz
 ExecStart=/bin/bash WORKDIR/api/run.sh
 [Install]
 WantedBy=multi-user.target
