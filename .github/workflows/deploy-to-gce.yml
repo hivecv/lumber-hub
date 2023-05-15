@@ -26,7 +26,7 @@ env:
 
 jobs:
   setup-build-publish-deploy:
-    name: Setup, Build, Publish, and Deploy
+    name: Deploy
     runs-on: ubuntu-latest
 
     # Add "id-token" with the intended permissions.
@@ -35,38 +35,13 @@ jobs:
       id-token: 'write'
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-
     - id: 'auth'
       uses: 'google-github-actions/auth@v1'
       with:
         credentials_json: '${{ secrets.GCE_SA_KEY }}'
 
-    - name: Login to DockerHub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-    # Build the Docker image
-    - name: Build
-      run: |-
-        docker compose build
-
-    # Push the Docker image to Google Container Registry
-    - name: Publish
-      run: |-
-        docker compose push
-
-    - name: Cache SSH keys
-      uses: actions/cache@v3
-      with:
-        path: ~/.ssh
-        key: ${{ runner.os }}-ssh
-
     - name: Deploy
       run: |-
         gcloud compute ssh \
           --zone "$GCE_INSTANCE_ZONE" "lukasz@$GCE_INSTANCE"\
-          -- "cd /home/lukasz/lumber-hub && git pull && docker compose pull && docker compose up -d"
+          -- "cd /home/lukasz/lumber-hub && git pull && bash enable_app.sh"
