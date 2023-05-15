@@ -84,4 +84,4 @@ jobs:
         gcloud compute ssh \
           --zone "$GCE_INSTANCE_ZONE" "lukasz@$GCE_INSTANCE"\
           -- "cd /home/lukasz/lumber-hub && git reset --hard HEAD && git pull && bash enable_app.sh"
-        gcloud compute scp --recurse web/build "lukasz@$GCE_INSTANCE:/home/lukasz/lumber-hub/web/build" --zone "$GCE_INSTANCE_ZONE"
+        gcloud compute scp --recurse web/build "lukasz@$GCE_INSTANCE:/home/lukasz/lumber-hub/web" --zone "$GCE_INSTANCE_ZONE"
