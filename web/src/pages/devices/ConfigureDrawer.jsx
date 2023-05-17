@@ -17,7 +17,7 @@ const ConfigureDrawer = ({device, onClose}) => {
         dispatch(updateConfig({
           device_uuid: device.deviceUUID(),
           id: config.id,
-          config,
+          config: values,
           callback: onClose
         }))
       })
