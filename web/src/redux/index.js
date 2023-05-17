@@ -32,7 +32,7 @@ export const fetchDevices = createAsyncThunk(
 export const updateConfig = createAsyncThunk(
   'devices/update',
   async (act, thunk) => {
-    const response = await request(PUT, `/devices/${act["device_uuid"]}/configs/${act["id"]}/`, act["config"], getAuthConfig(thunk));
+    const response = await request(PUT, `/api/devices/${act["device_uuid"]}/configs/${act["id"]}/`, act["config"], getAuthConfig(thunk));
     thunk.dispatch(fetchDevices());
     if(act.callback) {
       act.callback(response.data)
