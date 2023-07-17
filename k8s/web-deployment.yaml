@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lumber-web-service
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: lumber-web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lumber-web-deployment
+spec:
+  selector:
+    matchLabels:
+      app: lumber-web
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: lumber-web
+    spec:
+      containers:
+        - name: lumber-web
+          image: hivecv/lumber-hub-web
+          ports:
+            - containerPort: 80

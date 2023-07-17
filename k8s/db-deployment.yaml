@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lumber-db-config
+  labels:
+    app: lumber-db
+data:
+  POSTGRES_USER: lumber
+  POSTGRES_PASSWORD: lumber
+  POSTGRES_DB: lumber
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: lumber-db-volume
+  labels:
+    type: local
+    app: lumber-db
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: lumber-db-claim
+  labels:
+    app: lumber-db
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lumber-db
+  labels:
+    app: lumber-db
+spec:
+  type: NodePort
+  ports:
+    - port: 5432
+  selector:
+    app: lumber-db
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lumber-db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lumber-db
+  template:
+    metadata:
+      labels:
+        app: lumber-db
+    spec:
+      containers:
+        - name: lumber-db
+          image: postgres:15.1
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: lumber-db-config
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: lumber-db-volume
+      volumes:
+        - name: lumber-db-volume
+          persistentVolumeClaim:
+            claimName: lumber-db-claim
